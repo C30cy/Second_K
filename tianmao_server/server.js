@@ -1,5 +1,11 @@
 const express = require('express')
+const bodyParser = require('body-parser')
 const app = express()
+const users = []
+const shujus = [ {keyword:'牛奶',text:[{name:'特仑苏',price:70},{name:'伊利纯牛奶',price:40},{name:'经典',price:78}]},
+                {keyword:'华为充电器',text:[{name:'华为充电器',price:50},{name:'原装充电器',price:60},{name:'适配华为充电器',price:30}]},
+                {keyword:'小米充电宝',text:[{name:'小米充电宝/10000毫安',price:60},{name:'小米充电宝/20000毫安',price:120}]}
+            ]
 
 app.use((request,response,next)=>{
 	console.log('有人请求服务器了');
@@ -7,6 +13,8 @@ app.use((request,response,next)=>{
 	// console.log('请求的地址',request.url);
 	next()
 })
+app.use(bodyParser.urlencoded({ extended:false}))
+app.use(bodyParser.json())
 
 app.get('/students',(request,response)=>{
 	const students = [
@@ -19,6 +27,42 @@ app.get('/students',(request,response)=>{
         { id: "007", word: "母婴用品" ,iconfont:7,prolists:["纸尿裤","奶粉","湿巾","洗护","玩具"]}
     ]
 	response.send(students)
+})
+app.post('/keyword',(request,response)=>{
+    const keywords = request.body
+    console.log(keywords)
+    let shuju = shujus.find(item => item.keyword === keywords.keyword)
+    console.log(shuju)
+    if(shuju){
+        response.send(shuju)
+    }
+})
+app.post('/check',(request,response)=>{
+    console.log(request.body)
+    const data = request.body
+    console.log(users)
+    let user = users.find(item => item.name === data.name)
+    if(user){
+        console.log('注册失败')
+        response.send({msg:"注册失败",data:''})
+    }else{
+        users.push(data)
+        console.log('注册成功')
+        response.send({msg:"注册成功",data:data})
+    }
+})
+app.post('/login',(request,response)=>{
+    console.log(request.body)
+    const data = request.body
+    console.log(users)
+    let user = users.find(item => item.name === data.name && item.pwd === data.pwd)
+    if(user){
+        console.log('登录成功')
+        response.send({msg:"登录成功",data:data})
+    }else{
+        console.log('账号或密码错误')
+        response.send({msg:"登录失败",data:data})
+    }
 })
 app.get('/carousels',(request,response)=>{
 	const images= [
